@@ -1,7 +1,7 @@
 /* Kyle Tranfaglia
 *  COSC420 - Exercise01
 *  Last updated 09/25/24
-*  This program takes in a command line argument (N) and does a summation from 1 to N
+*  This program takes in a command line argument (N) and does a summation from 1 to N with a closed form formula
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,10 +28,8 @@ int main(int argc, char **argv) {
 
     start = clock();  // Start timing
 
-    // Sum from 1 to n
-    for (long i = 1; i <= n; i++) {
-        sum += i;
-    }
+    // Use the closed-form formula to compute the sum
+    sum = n * (n + 1) / 2;
 
     end = clock(); // End timing
 
