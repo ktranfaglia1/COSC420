@@ -1,8 +1,8 @@
 /* Kyle Tranfaglia
 *  COSC420 - Homework01
 *  Last Updated: 10/01/24
-*  This is an MPI program to compute the average ratings for each of the products 
-*  and sort them in decending order given an m and n value in command line
+*  This is a Debugging version of an MPI program to compute the average ratings for each 
+*  of the products and sort them in decending order given an m and n value in command line
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
     }
     MPI_Barrier(MPI_COMM_WORLD);  // Ensure all processes wait for the master to finish checking command-line input before proceeding
 
-    start_time = MPI_Wtime();  // Start timer
+    start_time = MPI_Wtime();  // Start timing
 
     // Check if master process
     if (rank == 0) {
@@ -78,15 +78,29 @@ int main(int argc, char **argv) {
             }
         }
 
+        // Print reviews data being sent
+        for (int i = 0; i < m; i++) {
+            printf("Master prepared reviews for product %d: [ ", i + 1);
+            for (int j = 0; j < n; j++) {
+                printf("%d ", all_reviews[i][j]);
+            }
+            printf("]\n");
+        }
+
         // Send data to worker process(es)
         for (int i = 1; i < num_comm; i++) {
+            printf("Master %d sending reviews to worker %d\n", rank, i);
             MPI_Send(all_reviews[i-1], n, MPI_INT, i, 0, MPI_COMM_WORLD);
+            printf("Master sent reviews to worker %d\n", i);
         }
         
         // Allocate memory for m products and receive average ratings of n reviews from worker process(es)
         double *averages = (double *)malloc(m * sizeof(double));
+        
         for (int i = 1; i < num_comm; i++) {
+            printf("Master %d waiting to receive average from worker %d\n and I am you're father!", rank, i);
             MPI_Recv(&averages[i - 1], 1, MPI_DOUBLE, i, 1, MPI_COMM_WORLD, &status);
+            printf("Master received average: %.2f from worker %d\n", averages[i - 1], i);
         }
 
         qsort(averages, m, sizeof(double), compare);  // Sort the averages in descending order using qsort (compare function is above)
@@ -115,7 +129,16 @@ int main(int argc, char **argv) {
     else if (rank <= m) {
         // Allocate memory for n random reviews and receive the array of reviews from master
         int *product_reviews = (int *)malloc(n * sizeof(int));
+        printf("Worker %d ready to receive reviews from master\n", rank);
         MPI_Recv(product_reviews, n, MPI_INT, 0, 0, MPI_COMM_WORLD, &status);
+        printf("Worker %d received reviews from master\n", rank);
+
+        // Display received data
+        printf("[");
+        for (int i = 0; i < n; i++) {
+            printf("%d ", product_reviews[i]);
+        }
+        printf(" ]\n");
 
         // Compute the average review rating for the given product
         double average = 0.0;
@@ -123,8 +146,9 @@ int main(int argc, char **argv) {
             average += product_reviews[i];
         }
         average /= n;
-
+        printf("Worker %d sending average: %.2f\n", rank, average);
         MPI_Send(&average, 1, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD);  // Send average review rating back to master
+        printf("Worker %d sent average: %.2f\n", rank, average);
         free(product_reviews);  // Deallocate memory
     }
 
