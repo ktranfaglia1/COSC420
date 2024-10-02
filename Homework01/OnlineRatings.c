@@ -14,11 +14,18 @@
 #define MIN_M 1  // Minimum number of products <m>
 #define MIN_N 5  // Minimum number of reviews per product <n>
 
+// Struct to hold average rating and the corresponding product number/rank
+typedef struct {
+    double average;
+    int product;
+} ProductRating;
+
 // Comparison function for qsort (descending order)
 int compare(const void *a, const void *b) {
-    double arg1 = *(const double*)a;
-    double arg2 = *(const double*)b;
-    return (arg1 < arg2) - (arg1 > arg2);
+    double diff = ((ProductRating*)b)->average - ((ProductRating*)a)->average;  // Cast void pointers to product struct and get difference between product averages
+    if (diff < 0) return -1;
+    if (diff > 0) return 1;
+    return 0;
 }
 
 int main(int argc, char **argv) {
@@ -67,7 +74,7 @@ int main(int argc, char **argv) {
     if (rank == 0) {
         srand(time(NULL));
 
-        // Allocate memory for n random reviews for all m products as a flattened array such that every n elements represents a product x from m
+        // Allocate memory for m products, each to have n reviews
         int **all_reviews = (int **)malloc(m * sizeof(int*));
 
         // Generate and store n random review scores between 1 and 5 for all m products
@@ -83,18 +90,22 @@ int main(int argc, char **argv) {
             MPI_Send(all_reviews[i-1], n, MPI_INT, i, 0, MPI_COMM_WORLD);
         }
         
-        // Allocate memory for m products and receive average ratings of n reviews from worker process(es)
-        double *averages = (double *)malloc(m * sizeof(double));
+        ProductRating *ratings = (ProductRating *)malloc(m * sizeof(ProductRating));  // Allocate memory for m products using product object
+
+        // Receive average ratings of n reviews and n worker ranks from worker process(es)
         for (int i = 1; i < num_comm; i++) {
-            MPI_Recv(&averages[i - 1], 1, MPI_DOUBLE, i, 1, MPI_COMM_WORLD, &status);
+            double result[2];  // stores both average and rank from workers
+            MPI_Recv(result, 2, MPI_DOUBLE, i, 1, MPI_COMM_WORLD, &status);
+            ratings[i - 1].average = result[0];  // Store average rating
+            ratings[i - 1].product = (int)result[1];  // Store corresponding product number
         }
 
-        qsort(averages, m, sizeof(double), compare);  // Sort the averages in descending order using qsort (compare function is above)
+        qsort(ratings, m, sizeof(ProductRating), compare);  // Sort the averages in descending order using qsort (compare function is above)
         
         // Display sorted averages
         printf("Sorted Product Ratings:\n");
         for (int i = 0; i < m; i++) {
-            printf("Product %d: %.1f\n", i + 1, averages[i]);
+            printf("Product %d: %.1f\n", ratings[i].product, ratings[i].average);
         }
 
         // Stop the timer for the master process & calculate the total elapsed time
@@ -109,7 +120,7 @@ int main(int argc, char **argv) {
             free(all_reviews[i]);
         }
         free(all_reviews);
-        free(averages);
+        free(ratings);
     }
     // Worker processes 
     else if (rank <= m) {
@@ -124,7 +135,12 @@ int main(int argc, char **argv) {
         }
         average /= n;
 
-        MPI_Send(&average, 1, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD);  // Send average review rating back to master
+        // Prepare to send both average and rank (product number) back to the master
+        double result[2];
+        result[0] = average;
+        result[1] = (double)rank;
+
+        MPI_Send(result, 2, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD);  // Send average review rating back to master
         free(product_reviews);  // Deallocate memory
     }
 

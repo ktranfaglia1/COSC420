@@ -13,11 +13,18 @@
 #define MIN_M 1  // Minimum number of products
 #define MIN_N 5  // Minimum number of reviews per product
 
-// Comparison function for qsort (descending order)
+// Struct to hold average rating and the corresponding product number
+typedef struct {
+    double average;
+    int product;
+} ProductRating;
+
+// Comparison function for qsort (descending order by average)
 int compare(const void *a, const void *b) {
-    double arg1 = *(const double*)a;
-    double arg2 = *(const double*)b;
-    return (arg1 < arg2) - (arg1 > arg2);
+    double diff = ((ProductRating*)b)->average - ((ProductRating*)a)->average;
+    if (diff < 0) return -1;
+    if (diff > 0) return 1;
+    return 0;
 }
 
 int main(int argc, char **argv) {
@@ -47,9 +54,8 @@ int main(int argc, char **argv) {
 
     srand(time(NULL));
 
-    // Allocate memory for m products, each with n reviews
-    int **all_reviews = (int **)malloc(m * sizeof(int *));
-    double *averages = (double *)malloc(m * sizeof(double));
+    int **all_reviews = (int **)malloc(m * sizeof(int *));  // Allocate memory for m products, each to have n reviews
+    ProductRating *products = (ProductRating *)malloc(m * sizeof(ProductRating));  // Allocate memory for m products using product object
 
     // Generate n random reviews for each product and compute the average
     for (int i = 0; i < m; i++) {
@@ -59,17 +65,17 @@ int main(int argc, char **argv) {
             all_reviews[i][j] = (rand() % 5) + 1; // Random review score between 1 and 5
             sum += all_reviews[i][j];
         }
-        averages[i] = sum / n;
-        // printf("Product %d average: %.2f\n", i + 1, averages[i]);
+        products[i].product = i + 1;  // Store product number (starting from 1)
+        products[i].average = sum / n;  // Store average rating
     }
 
     // Sort the averages in descending order using qsort
-    qsort(averages, m, sizeof(double), compare);
+    qsort(products, m, sizeof(ProductRating), compare);
 
-    // Display sorted averages
-    printf("\nSorted Product Ratings:\n");
+    // Display sorted product ratings
+    printf("Sorted Product Ratings:\n");
     for (int i = 0; i < m; i++) {
-        printf("Product %d: %.1f\n", i + 1, averages[i]);
+        printf("Product %d: %.1f\n", products[i].product, products[i].average);
     }
 
     // Stop the timer and calculate elapsed time
@@ -77,14 +83,14 @@ int main(int argc, char **argv) {
     elapsed_time = (double)(end_time - start_time) / CLOCKS_PER_SEC;
 
     // Print the elapsed time
-    printf("\nTime taken: %.4f seconds\n", elapsed_time);
+    printf("Time taken: %.4f seconds\n", elapsed_time);
 
     // Deallocate memory
     for (int i = 0; i < m; i++) {
         free(all_reviews[i]);
     }
     free(all_reviews);
-    free(averages);
+    free(products);
 
     return 0;
 }
