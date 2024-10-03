@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
     // Scan the data (process rank) to do a partial reduce, meaning do a partial sum on the data and send it to the corresponding process
     MPI_Scan(&rank, &result, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
 
-    printf("Partial Sum Reduced by process %d via Scan: %d\n", rank, result);  // For each process, display the sum of process ranks 
+    printf("Partial Sum Reduced by Process %d via Scan: %d\n", rank, result);  // For each process, display the partial sum of process ranks 
 
     MPI_Finalize();
     return 0;

@@ -21,8 +21,7 @@ int main(int argc, char* argv[]) {
         strcpy(message, "Hello");  // Set a message to be broadcasted
     }
     
-    // Broadcast the 6 char message from master process to all processes
-    MPI_Bcast(message, 6, MPI_CHAR, 0, MPI_COMM_WORLD); 
+    MPI_Bcast(message, 6, MPI_CHAR, 0, MPI_COMM_WORLD);  // Broadcast the 6 char message from master process to all processes
 
     printf("Process %d received message: %s via broadcast\n", rank, message);
 

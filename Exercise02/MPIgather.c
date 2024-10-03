@@ -17,7 +17,7 @@ int main(int argc, char* argv[]) {
 
     int gathered_data[size];  // Holds gathered data from all processes
 
-    MPI_Gather(&rank, 1, MPI_INT, gathered_data, 1, MPI_INT, 0, MPI_COMM_WORLD);   // Gather all the sent process ranks in the Master process
+    MPI_Gather(&rank, 1, MPI_INT, gathered_data, 1, MPI_INT, 0, MPI_COMM_WORLD);  // Gather all the sent process ranks in the Master process
 
     // Master Process
     if (rank == 0) {

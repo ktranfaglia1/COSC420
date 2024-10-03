@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    // Reduce the data (process ranks), meaning sum all data and send it to the master process
+    // Reduce the data (process ranks), meaning recieve data, then sum all data and send it to the master process
     MPI_Reduce(&rank, &result, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
     // Master Process

@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
 
     // Generate unique data for each process to send to other processes
     for (int i = 0; i < size; i++) {
-        send_data[i] = rank * i + 1;
+        send_data[i] = (rank * i) + 1;
     }
 
     MPI_Alltoall(send_data, 1, MPI_INT, recv_data, 1, MPI_INT, MPI_COMM_WORLD);  // Communicate all data to all processes
