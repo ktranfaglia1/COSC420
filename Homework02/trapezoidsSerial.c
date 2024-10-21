@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
 
     // Print the result
     printf("With n = %d trapezoids, our estimate of the integral from %.2Lf to %.2Lf = %.10Le\n", n, a, b, total_integral);
-    printf("Computation time: %.8f seconds\n", elapsed_time);
+    printf("Total runtime: %.8f seconds\n", elapsed_time);
 
     return 0;
 }
