@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
     int n;
     long double a, b, delta_x, total_integral;
     clock_t start_time, end_time;
-    double time_spent;
+    double elapsed_time;
 
     // Check command-line arguments
     if (argc != 4) {
@@ -55,11 +55,11 @@ int main(int argc, char** argv) {
     total_integral = trapezoidal_rule(a, b, n, delta_x);  // Estimate the integral subinterval using trapezoidal rule
     end_time = clock();  // Stop timer after calculation
 
-    time_spent = (double)(end_time - start_time) / CLOCKS_PER_SEC;  // Compute elapsed time in seconds
+    elapsed_time = (double)(end_time - start_time) / CLOCKS_PER_SEC;  // Compute elapsed time in seconds
 
     // Print the result
     printf("With n = %d trapezoids, our estimate of the integral from %.2Lf to %.2Lf = %.10Le\n", n, a, b, total_integral);
-    printf("Computation time: %.8f seconds\n", time_spent);
+    printf("Computation time: %.8f seconds\n", elapsed_time);
 
     return 0;
 }
