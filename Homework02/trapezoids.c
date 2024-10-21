@@ -1,6 +1,6 @@
 /* Kyle Tranfaglia
 *  COSC420 - Homework02
-*  Last Updated: 10/22/24
+*  Last Updated: 10/21/24
 *  This is an MPI program to compute the approximate area under a curve using trapezoidal rule
 */
 #include <stdio.h>
@@ -65,7 +65,7 @@ int main(int argc, char** argv) {
     start_time = MPI_Wtime();  // Start the timer for the process to measure execution time
     subinterval_integral = trapezoidal_rule(subinterval_a, subinterval_b, subinterval_n, delta_x);  // Estimate the integral subinterval using trapezoidal rule
     end_time = MPI_Wtime();  // Stop the timer for the process after the calculation
-    subinterval_time = end_time - start_time;  // Calculate the elapsed time
+    subinterval_time = end_time - start_time;  // Calculate the elapsed time in seconds
 
     // In the master process, recieve all integrals from other processes
     if (rank == 0) {
