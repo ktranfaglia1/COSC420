@@ -43,18 +43,17 @@ int main(int argc, char** argv) {
         return 1;  // Exit due to incorrect number of command-line arguments
     }
 
+    start_time = clock();  // Start timer before calculation
+
     // Store command line arguments as long doubles (a, b) and an integer (n)
     a = strtold(argv[1], NULL);
     b = strtold(argv[2], NULL);
     n = atoi(argv[3]);
 
-    // Calculate step size | width of each trapezoid
-    delta_x = (b - a) / n;
-
-    start_time = clock();  // Start timer before calculation
+    delta_x = (b - a) / n;  // Calculate step size | width of each trapezoid
     total_integral = trapezoidal_rule(a, b, n, delta_x);  // Estimate the integral subinterval using trapezoidal rule
-    end_time = clock();  // Stop timer after calculation
 
+    end_time = clock();  // Stop timer after calculation
     elapsed_time = (double)(end_time - start_time) / CLOCKS_PER_SEC;  // Compute elapsed time in seconds
 
     // Print the result

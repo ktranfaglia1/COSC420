@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
     // Variables
     int rank, size, n, subinterval_n;
     long double a, b, delta_x, subinterval_a, subinterval_b, subinterval_width, subinterval_integral, total_integral;
-    double start_time, end_time, subinterval_time, min_time, max_time, sum_time;
+    double start_time, end_time, subinterval_time, min_time, max_time, sum_time, total_start_time, total_end_time, total_elapsed_time;
 
     // Initialize MPI environment
     MPI_Init(&argc, &argv);
@@ -39,12 +39,17 @@ int main(int argc, char** argv) {
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
     // Check number of command-line arguments with master process only - provide descriptive program requirements upon invalid argument
-    if (rank == 0 && argc != 4) {
-        printf("Usage: %s <a> <b> <n>\n", argv[0]);
-        printf("<a> is the integral lower bound\n");
-        printf("<b> is the integral upper bound\n");
-        printf("<n> is the number of subintervals for partitioning the approximation\n");
-        MPI_Abort(MPI_COMM_WORLD, 1);  // Abort all processes due to incorrect number of command-line arguments
+    if (rank == 0) {
+        if (argc != 4) {
+            printf("Usage: %s <a> <b> <n>\n", argv[0]);
+            printf("<a> is the integral lower bound\n");
+            printf("<b> is the integral upper bound\n");
+            printf("<n> is the number of subintervals for partitioning the approximation\n");
+            MPI_Abort(MPI_COMM_WORLD, 1);  // Abort all processes due to incorrect number of command-line arguments
+        }
+        else {
+            total_start_time = MPI_Wtime();  // Start the total runtime timer
+        }
     }
     MPI_Barrier(MPI_COMM_WORLD);  // Ensure all processes wait for the master to finish checking command-line input before proceeding
 
@@ -87,11 +92,15 @@ int main(int argc, char** argv) {
     MPI_Reduce(&subinterval_time, &max_time, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
     MPI_Reduce(&subinterval_time, &sum_time, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
  
-    // Print results on the master process
+    // calculate total runtime and print results on the master process
     if (rank == 0) {
+        total_end_time = MPI_Wtime();  // Stop the total runtime timer
+        total_elapsed_time = total_end_time - total_start_time;  // Calculate total elapsed time
+
         printf("With n = %d trapezoids, our estimate of the integral from %.2Lf to %.2Lf = %.10Le\n", n, a, b, total_integral);
         printf("Among %d processes, the runtime statistics are:\n", size); 
         printf("Min: %.8fs Max: %.8fs Avg: %.8fs\n", min_time, max_time, sum_time / size);  // Average runtime calculated by MPI_Sum result / number of processes
+        printf("Total runtime: %.8f seconds\n", total_elapsed_time);
     }
 
     MPI_Finalize();  // Finalize MPI
