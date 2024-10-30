@@ -1,1 +1,94 @@
-Summarize the summation results and runtime differences for the three programs.
+Summary of the summation results and runtime differences for the three OpenMP programs.
+
+Output from ompSumA.c:
+kyletranfaglia@Asus-Phantom:~/COSC420/Exercise04$ ./ompSumA 10000 8
+Summation result: 11220095
+Runtime: 0.00028604 seconds
+kyletranfaglia@Asus-Phantom:~/COSC420/Exercise04$ ./ompSumA 10000 8
+Summation result: 5000980
+Runtime: 0.00020997 seconds
+kyletranfaglia@Asus-Phantom:~/COSC420/Exercise04$ ./ompSumA 10000 8
+Summation result: 6152493
+Runtime: 0.00021203 seconds
+kyletranfaglia@Asus-Phantom:~/COSC420/Exercise04$ ./ompSumA 10000 8
+Summation result: 5514448
+Runtime: 0.00020884 seconds
+kyletranfaglia@Asus-Phantom:~/COSC420/Exercise04$ ./ompSumA 10000 8
+Summation result: 6065035
+Runtime: 0.00020650 seconds
+
+Answer: varies (incorrect) 
+Max Runtime: 0.00028604 seconds
+
+Output from ompSumB.c:
+kyletranfaglia@Asus-Phantom:~/COSC420/Exercise04$ ./ompSumB 10000 8
+Summation result: 50005000
+Runtime: 0.00121307 seconds
+kyletranfaglia@Asus-Phantom:~/COSC420/Exercise04$ ./ompSumB 10000 8
+Summation result: 50005000
+Runtime: 0.00114389 seconds
+kyletranfaglia@Asus-Phantom:~/COSC420/Exercise04$ ./ompSumB 10000 8
+Summation result: 50005000
+Runtime: 0.00118817 seconds
+kyletranfaglia@Asus-Phantom:~/COSC420/Exercise04$ ./ompSumB 10000 8
+Summation result: 50005000
+Runtime: 0.00119569 seconds
+kyletranfaglia@Asus-Phantom:~/COSC420/Exercise04$ ./ompSumB 10000 8
+Summation result: 50005000
+Runtime: 0.00149044 seconds
+
+Answer: 50005000 
+Max Runtime: 0.00149044 seconds
+
+Output from ompSumC.c:
+kyletranfaglia@Asus-Phantom:~/COSC420/Exercise04$ ./ompSumC 10000 8
+Summation result: 50005000
+Runtime: 0.00018748 seconds
+kyletranfaglia@Asus-Phantom:~/COSC420/Exercise04$ ./ompSumC 10000 8
+Summation result: 50005000
+Runtime: 0.00018505 seconds
+kyletranfaglia@Asus-Phantom:~/COSC420/Exercise04$ ./ompSumC 10000 8
+Summation result: 50005000
+Runtime: 0.00019419 seconds
+kyletranfaglia@Asus-Phantom:~/COSC420/Exercise04$ ./ompSumC 10000 8
+Summation result: 50005000
+Runtime: 0.00021399 seconds
+kyletranfaglia@Asus-Phantom:~/COSC420/Exercise04$ ./ompSumC 10000 8
+Summation result: 50005000
+Runtime: 0.00022392 seconds
+
+Answer: 50005000 
+Max Runtime: 0.00022392 seconds
+
+
+After running the same test (N = 10000 T = 8) five times for each of the three programs, 
+there are some conclusions. First, the program ompSumA.c, which only uses the
+directive #pragma omp parallel for, yielded a different incorrect result each time. This
+is due to the race conditions encountered when multiple threads attempt to read, modify, 
+and write to the shared variable 'sum' at the same time. For example, two threads might 
+read the same value of 'sum' simultaneously, adds their 'i' value to the count, and then 
+write back, resulting in some additions being lost and a duplicate addition. The results 
+for the following programs were correct. For ompSumB.c, we introduced a critical section
+that ensures only one thread at a time can execute the summation code (sum += i) which 
+removes the threat of race conditions and yields an accurate result. As for ompSumC.c,
+we introduce #pragma omp parallel for reduction(+:sum) which instructs OpenMP to create 
+a private copy of 'sum' for each thread such that each thread independently accumulates 
+its own partial sum in its private 'sum' variable, then after the for loop, OpenMP
+combines each thread’s partial sum into the shared 'sum' variable. This method eliminates
+the need for a critical section yet still yields the correct answer as a race condition
+is no longer a concern if each thread has its own copy of 'sum.'
+
+As for timing, the most inefficent program in terms of time to compute is ompSumB.c, taking
+nearly 10 times as long as ompSumA.c and ompSumC.c. This poor time complexity can be explained
+by the critical section. Although it solved the issue of an incorrect summation due to a 
+race condition, it significantly hinders performance. This method does not leverage the 
+benefits of parallelism as the critical section serializes updates to 'sum' which 
+causing threads to wait for each other and limit the speedup. The timing between ompSumA.c and 
+ompSumC.c were nearly identical, however the times for ompSumC.c tended to be slightly lower,
+including the max runtime. This is beacause #pragma omp parallel for reduction(+:sum) in 
+ompSumC.c eliminates the need for a critical section and avoids the performance bottleneck of 
+threads waiting to access the shared 'sum'. Since each thread calculates its sum independently, 
+reduction achieves better parallel efficiency. Additionally, creating a private copy of a variable,
+in this case an unsigned long long, is not very computationally expensive so the timing is not very
+penalized. Therfore, ompSumC.c presents an optimal solution to the summation problem as it tends to be
+faster than the other two methods due to optimized parallelism and always outputs the correct answer.
