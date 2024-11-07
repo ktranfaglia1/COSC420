@@ -1,0 +1,28 @@
+./rowMatrixSerial 500
+Execution time: 0.0006 seconds
+./rowMatrixSerial 1000
+Execution time: 0.0024 seconds
+./rowMatrixSerial 10000
+Execution time: 0.5961 seconds
+./rowMatrixSerial 20000
+Execution time: 2.7433 seconds
+
+./rowMatrixParallel 500
+Execution time: 0.0058 seconds
+./rowMatrixParallel 1000
+Execution time: 0.0026 seconds
+./rowMatrixParallel 10000
+Execution time: 0.0310 seconds
+./rowMatrixParallel 20000
+Execution time: 0.1972 seconds
+
+From the execution times of both the serial and parallel implementations of the matrix operation, we 
+can make a few observations about performance scaling and efficiency. For smaller matrix sizes 
+(500 and 1000), the serial version is faster than the parallel version. This is likely because the 
+overhead of creating and managing threads in the parallel version outweighs the benefits of parallel 
+computation at small sizes. At 10,000 elements, we see a notable advantage in the parallel version.
+This indicates that for larger matrices, the parallel approach begins to pay off, as the increased 
+workload per thread allows the program to utilize parallel resources more effectively. At 20,000 
+elements, the parallel version significantly outperforms the serial version. This trend demonstrates 
+the benefits of parallel processing for large-scale operations where the workload is substantial 
+enough to fully leverage multiple threads, minimizing the relative impact of overhead.
