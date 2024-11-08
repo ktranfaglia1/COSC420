@@ -1,10 +1,9 @@
 /* Kyle Tranfaglia & Dustin O'Brien
 *  COSC420 - Homework03
-*  Last Updated: 11/05/24
+*  Last Updated: 11/06/24
 *  This is a program that serially creates a 2^20 binary tree using recursion and counts the number of values in range [0,1] that are x < .5
 */
-#include "stdio.h"
-#include "omp.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 

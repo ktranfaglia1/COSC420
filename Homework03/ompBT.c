@@ -1,10 +1,10 @@
 /* Kyle Tranfaglia & Dustin O'Brien
 *  COSC420 - Homework03
-*  Last Updated: 1105/24
+*  Last Updated: 11/06/24
 *  This is an OpenMP program that, in parallel, creates a 2^20 binary tree using recursion and counts the number of values in range [0,1] that are val < 0.5
 */
-#include "stdio.h"
-#include "omp.h"
+#include <stdio.h>
+#include <omp.h>
 #include <stdlib.h>
 #include <time.h>
 
