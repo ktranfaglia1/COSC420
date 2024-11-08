@@ -3,8 +3,8 @@
 *  Last Updated: 11/08/24
 *  This is an OpenMP program that, in parallel, creates a 2^20 binary tree using recursion and counts the number of values in range [0,1] that are val < 0.5 *Optimized version*
 */
-#include "stdio.h"
-#include "omp.h"
+#include <stdio.h>
+#include <omp.h>
 #include <stdlib.h>
 #include <time.h>
 
